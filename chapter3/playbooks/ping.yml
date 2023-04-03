@@ -1,0 +1,9 @@
+---
+- name: Init vagrant mashines
+  hosts: all
+  gather_facts: False
+  tasks:
+  - name: Ping
+    ping:
+      data: ya.ru
+        

@@ -1,0 +1,53 @@
+VAGRANT_API_VERSION = "2"
+# used https://app.vagrantup.com/ubuntu/boxes/focal64
+
+Vagrant.configure(VAGRANT_API_VERSION) do |config|
+    config.ssh.insert_key = false
+
+    config.vm.define "vagrant0" do |vagrant0|
+        vagrant0.vm.box = "ubuntu/focal64"
+        vagrant0.vm.network "forwarded_port", guest: 80, host: 8080
+        vagrant0.vm.network "forwarded_port", guest: 443, host: 8443
+        vagrant0.vm.provision "shell" do |s|
+            ssh_pub_key = File.readlines("/home/mmbl/.ssh/id_rsa.pub").first.strip
+            s.inline = <<-SHELL
+            echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
+            echo #{ssh_pub_key} >> /root/.ssh/authorized_keys
+            SHELL
+            end
+        end
+    config.vm.define "vagrant1" do |vagrant1|
+        vagrant1.vm.box = "ubuntu/focal64"
+        vagrant1.vm.network "forwarded_port", guest: 80, host: 8081
+        vagrant1.vm.network "forwarded_port", guest: 443, host: 8444
+        vagrant1.vm.provision "shell" do |s|
+            ssh_pub_key = File.readlines("/home/mmbl/.ssh/id_rsa.pub").first.strip
+            s.inline = <<-SHELL
+            echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
+            echo #{ssh_pub_key} >> /root/.ssh/authorized_keys
+            SHELL
+            end
+        end
+    config.vm.define "vagrant2" do |vagrant2|
+        vagrant2.vm.box = "ubuntu/focal64"
+        vagrant2.vm.network "forwarded_port", guest: 80, host: 8082
+        vagrant2.vm.network "forwarded_port", guest: 443, host: 8445
+        vagrant2.vm.provision "shell" do |s|
+            ssh_pub_key = File.readlines("/home/mmbl/.ssh/id_rsa.pub").first.strip
+            s.inline = <<-SHELL
+            echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
+            echo #{ssh_pub_key} >> /root/.ssh/authorized_keys
+            SHELL
+        end
+    config.vm.provision "ansible" do |ansible|
+        ansible.playbook = "ping.yml"
+        ansible.groups = {
+            "vagrant" => ["vagrant[0:2]"],
+            "web" => ["vagrant0"],
+            "task" => ["vagrant1"],
+            "rabbitmq" => ["vagrant3"],
+            "db" => ["vagrant3"]
+        }
+        end
+    end
+end
