@@ -45,8 +45,8 @@ Vagrant.configure(VAGRANT_API_VERSION) do |config|
             "vagrant" => ["vagrant[0:2]"],
             "web" => ["vagrant0"],
             "task" => ["vagrant1"],
-            "rabbitmq" => ["vagrant3"],
-            "db" => ["vagrant3"]
+            "rabbitmq" => ["vagrant2"],
+            "db" => ["vagrant2"]
         }
         end
     end
